@@ -6,6 +6,7 @@ interface UserState {
   settings: UserSettings;
   addSession: (session: Session) => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
+  clearSessions: () => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -23,5 +24,10 @@ export const useUserStore = create<UserState>((set) => ({
       storage.saveSettings(updated);
       return { settings: updated };
     });
+  },
+
+  clearSessions: () => {
+    storage.clearSessions();
+    set({ sessions: [] });
   },
 }));

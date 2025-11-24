@@ -16,7 +16,7 @@ export const InputLayer: React.FC<InputLayerProps> = ({ inputRef, value, onChang
       className={cn(
         "absolute inset-0 w-full h-full",
         "bg-transparent text-transparent caret-white resize-none outline-none",
-        "font-mono text-2xl leading-relaxed",
+        "font-mono leading-relaxed",
         "z-10"
       )}
       spellCheck={false}

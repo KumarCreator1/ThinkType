@@ -1,5 +1,5 @@
 import React from 'react';
-import { Timer, AlertCircle, Target, Zap, Save, RefreshCw } from 'lucide-react';
+import { Timer, AlertCircle, Target, Zap, RefreshCw } from 'lucide-react';
 
 interface ControlBarProps {
   wpm: number;
@@ -7,7 +7,9 @@ interface ControlBarProps {
   time: number;
   mistakes: number;
   onReset: () => void;
-  onSave: () => void;
+  duration: number;
+  setDuration: (duration: number) => void;
+  isTyping: boolean;
 }
 
 export const ControlBar: React.FC<ControlBarProps> = ({ 
@@ -15,8 +17,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   accuracy, 
   time, 
   mistakes, 
-  onReset, 
-  onSave,
+  onReset,
+  duration,
+  setDuration,
+  isTyping
 }) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -24,15 +28,23 @@ export const ControlBar: React.FC<ControlBarProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const durations = [
+    { label: '15s', value: 15 },
+    { label: '30s', value: 30 },
+    { label: '60s', value: 60 },
+    { label: '2m', value: 120 },
+    { label: '5m', value: 300 },
+  ];
+
   return (
-    <div className="w-full max-w-5xl mx-auto my-8 p-4 bg-neutral-800/30 rounded-2xl border border-white/5 backdrop-blur-sm flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-500">
+    <div className="w-full mx-auto my-8 p-4 bg-neutral-800/30 rounded-2xl border border-white/5 backdrop-blur-sm flex flex-wrap gap-4 justify-between items-center animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
             <Timer size={20} />
           </div>
           <div>
-            <p className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Time</p>
+            <p className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Time Left</p>
             <p className="text-xl font-bold text-white font-mono">{formatTime(time)}</p>
           </div>
         </div>
@@ -74,27 +86,31 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
+        {!isTyping && (
+          <div className="flex bg-neutral-900/50 rounded-lg p-1">
+            {durations.map((d) => (
+              <button
+                key={d.value}
+                onClick={() => setDuration(d.value)}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  duration === d.value
+                    ? 'bg-neutral-700 text-white shadow-sm'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <button
           onClick={onReset}
           className="p-3 text-neutral-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200"
           title="Reset Session"
         >
           <RefreshCw size={20} />
-        </button>
-        
-        <button
-          onClick={onSave}
-          disabled={time === 0}
-          className={`
-            flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200
-            ${time > 0 
-              ? 'bg-emerald-500 hover:bg-emerald-400 text-neutral-900 shadow-lg shadow-emerald-500/20' 
-              : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'}
-          `}
-        >
-          <Save size={18} />
-          <span>Finish & Save</span>
         </button>
       </div>
     </div>

@@ -36,5 +36,9 @@ export const storage = {
   getSettings: (): UserSettings => {
     const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     return data ? JSON.parse(data) : { theme: 'dark', font: 'mono' };
+  },
+
+  clearSessions: () => {
+    localStorage.removeItem(STORAGE_KEYS.SESSIONS);
   }
 };

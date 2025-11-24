@@ -20,15 +20,17 @@ export const Renderer: React.FC<RendererProps> = ({ text }) => {
         <span className="text-neutral-600 opacity-50">Start typing your thoughts...</span>
       )}
       {validatedWords.map((result, index) => (
-        <span 
-          key={index} 
-          className={cn(
-            "inline-block mr-3 transition-colors duration-200",
-            result.isValid ? "text-emerald-400" : "text-rose-400 shake-animation"
-          )}
-        >
-          {result.word}
-        </span>
+        <React.Fragment key={index}>
+          <span 
+            className={cn(
+              "inline-block transition-colors duration-200",
+              result.isValid ? "text-emerald-400" : "text-rose-400 shake-animation"
+            )}
+          >
+            {result.word}
+          </span>
+          {index < validatedWords.length - 1 && <span> </span>}
+        </React.Fragment>
       ))}
     </div>
   );

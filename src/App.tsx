@@ -12,7 +12,7 @@ function App() {
       case 'home':
         return <LandingPage onStart={() => setView('typing')} />;
       case 'typing':
-        return <TypingEngine />;
+        return <TypingEngine onShowDashboard={() => setView('dashboard')} />;
       case 'dashboard':
         return <Dashboard />;
       case 'profile':
@@ -32,7 +32,7 @@ function App() {
     <div className="min-h-screen bg-[#111] text-gray-100 flex flex-col font-sans selection:bg-emerald-500/30">
       <Navbar currentView={view as any} setView={setView as any} />
       
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
+      <main className="flex-1 w-full max-w-full mx-auto p-4 md:p-8">
         {renderContent()}
       </main>
     </div>

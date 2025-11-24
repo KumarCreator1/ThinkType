@@ -6,30 +6,55 @@ export const useTypingEngine = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [duration, setDuration] = useState(60); // Default 60 seconds
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [isFinished, setIsFinished] = useState(false);
   const timerRef = useRef<number | null>(null);
+
+  const [mistakes, setMistakes] = useState(0);
+  const [wpmHistory, setWpmHistory] = useState<number[]>([]);
+
+  // Update timeLeft when duration changes
+  useEffect(() => {
+    if (!startTime) {
+      setTimeLeft(duration);
+      setWpmHistory([]);
+      setMistakes(0);
+    }
+  }, [duration, startTime]);
 
   const calculateStats = useCallback((text: string) => {
     if (!startTime) return;
     
     const now = Date.now();
-    const durationInMinutes = (now - startTime) / 60000;
+    const elapsedSeconds = (now - startTime) / 1000;
+    const durationInMinutes = elapsedSeconds / 60;
     
     // WPM = (characters / 5) / minutes
-    // Standard WPM calculation uses 5 characters as a "word"
-    const standardWpm = Math.round((text.length / 5) / (durationInMinutes || 0.0001)); // Avoid divide by zero
+    const standardWpm = Math.round((text.length / 5) / (durationInMinutes || 0.0001));
     
-    // Accuracy
-    const wordList = text.split(' ');
-    const correctWords = wordList.filter(w => validateWord(w).isValid).length;
+    // Accuracy & Mistakes
+    const wordList = text.split(' ').filter(w => w.length > 0);
+    let errorCount = 0;
+    
+    wordList.forEach(w => {
+      if (!validateWord(w).isValid) {
+        errorCount++;
+      }
+    });
+
+    const correctWords = wordList.length - errorCount;
     const acc = wordList.length > 0 ? Math.round((correctWords / wordList.length) * 100) : 100;
 
     setWpm(standardWpm);
     setAccuracy(acc);
-    setElapsedTime(Math.floor((now - startTime) / 1000));
+    setMistakes(errorCount);
+    return standardWpm;
   }, [startTime]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isFinished) return; // Prevent typing when finished
+
     const newValue = e.target.value;
     
     if (!startTime && newValue.length > 0) {
@@ -38,28 +63,45 @@ export const useTypingEngine = () => {
 
     setUserInput(newValue);
     calculateStats(newValue);
-  }, [startTime, calculateStats]);
+  }, [startTime, calculateStats, isFinished]);
 
-  // Timer for updating stats every second even if not typing
+  // Timer for countdown
   useEffect(() => {
-    if (startTime) {
+    if (startTime && !isFinished) {
       timerRef.current = window.setInterval(() => {
-        calculateStats(userInput);
+        const now = Date.now();
+        const elapsed = Math.floor((now - startTime) / 1000);
+        const remaining = Math.max(0, duration - elapsed);
+        
+        setTimeLeft(remaining);
+        const currentWpm = calculateStats(userInput);
+        
+        if (currentWpm !== undefined) {
+          setWpmHistory(prev => [...prev, currentWpm]);
+        }
+
+        if (remaining === 0) {
+          setIsFinished(true);
+          if (timerRef.current) clearInterval(timerRef.current);
+        }
       }, 1000);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [startTime, userInput, calculateStats]);
+  }, [startTime, duration, userInput, calculateStats, isFinished]);
 
   const reset = useCallback(() => {
     setUserInput('');
     setStartTime(null);
     setWpm(0);
     setAccuracy(100);
-    setElapsedTime(0);
+    setMistakes(0);
+    setTimeLeft(duration);
+    setIsFinished(false);
+    setWpmHistory([]);
     if (timerRef.current) clearInterval(timerRef.current);
-  }, []);
+  }, [duration]);
 
   return {
     userInput,
@@ -67,9 +109,13 @@ export const useTypingEngine = () => {
     stats: {
       wpm,
       accuracy,
-      time: elapsedTime,
-      mistakes: 0 // Placeholder for now
+      time: timeLeft,
+      mistakes,
+      wpmHistory
     },
-    reset
+    reset,
+    duration,
+    setDuration,
+    isFinished
   };
 };
