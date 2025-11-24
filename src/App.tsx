@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { TypingEngine } from './components/core/TypingEngine';
+import { Dashboard } from './components/dashboard/Dashboard';
+import { Navbar } from './components/layout/Navbar';
+import { LandingPage } from './components/pages/LandingPage';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [view, setView] = useState<'home' | 'typing' | 'dashboard' | 'profile' | 'about'>('home');
+
+  const renderContent = () => {
+    switch (view) {
+      case 'home':
+        return <LandingPage onStart={() => setView('typing')} />;
+      case 'typing':
+        return <TypingEngine />;
+      case 'dashboard':
+        return <Dashboard />;
+      case 'profile':
+      case 'about':
+        return (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Coming Soon</h2>
+            <p className="text-neutral-400">This feature is under development.</p>
+          </div>
+        );
+      default:
+        return <LandingPage onStart={() => setView('typing')} />;
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen bg-[#111] text-gray-100 flex flex-col font-sans selection:bg-emerald-500/30">
+      <Navbar currentView={view as any} setView={setView as any} />
+      
+      <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
+        {renderContent()}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
