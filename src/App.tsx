@@ -28,8 +28,15 @@ function App() {
     }
   };
 
+  const getBackgroundClass = () => {
+    if (view === 'home') {
+      return 'bg-gradient-to-b from-white via-neutral-50 to-neutral-100';
+    }
+    return 'bg-[#111]';
+  };
+
   return (
-    <div className="min-h-screen bg-[#111] text-gray-100 flex flex-col font-sans selection:bg-emerald-500/30">
+    <div className={`min-h-screen ${getBackgroundClass()} text-gray-100 flex flex-col font-sans selection:bg-emerald-500/30 transition-colors duration-500`}>
       <Navbar currentView={view as any} setView={setView as any} />
       
       <main className="flex-1 w-full max-w-full mx-auto p-4 md:p-8">
