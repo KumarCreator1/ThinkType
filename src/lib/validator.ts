@@ -17,7 +17,13 @@ export const validateWord = (word: string): ValidationResult => {
     return { word, isValid: true, isFuzzyMatch: false };
   }
 
-  // 1. Exact Match
+  // 1. Single Letter Check
+  if (cleanWord.length === 1) {
+    const isValid = cleanWord === 'a' || cleanWord === 'i';
+    return { word, isValid, isFuzzyMatch: false };
+  }
+
+  // 2. Exact Match
   if (dictionary.has(cleanWord)) {
     return { word, isValid: true, isFuzzyMatch: false };
   }
