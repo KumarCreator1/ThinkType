@@ -3,9 +3,11 @@ import { TypingEngine } from './components/core/TypingEngine';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { Navbar } from './components/layout/Navbar';
 import { LandingPage } from './components/pages/LandingPage';
+import { AboutPage } from './components/pages/AboutPage';
+import { FeedbackPage } from './components/pages/FeedbackPage';
 
 function App() {
-  const [view, setView] = useState<'home' | 'typing' | 'dashboard' | 'profile' | 'about'>('home');
+  const [view, setView] = useState<'home' | 'typing' | 'dashboard' | 'profile' | 'about' | 'feedback'>('home');
 
   const renderContent = () => {
     switch (view) {
@@ -15,8 +17,11 @@ function App() {
         return <TypingEngine onShowDashboard={() => setView('dashboard')} />;
       case 'dashboard':
         return <Dashboard />;
-      case 'profile':
       case 'about':
+        return <AboutPage />;
+      case 'feedback':
+        return <FeedbackPage />;
+      case 'profile':
         return (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Coming Soon</h2>
@@ -29,8 +34,8 @@ function App() {
   };
 
   const getBackgroundClass = () => {
-    if (view === 'home') {
-      return 'bg-gradient-to-b from-white via-neutral-50 to-neutral-100';
+    if (view === 'home' || view === 'about' || view === 'feedback') {
+      return 'bg-gradient-to-b from-neutral-100 via-neutral-200 to-neutral-300';
     }
     return 'bg-[#111]';
   };
